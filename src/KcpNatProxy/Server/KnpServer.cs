@@ -59,53 +59,6 @@ namespace KcpNatProxy.Server
             _mtu = listenEndPoint.Mtu;
             _password = string.IsNullOrEmpty(options.Credential) ? Array.Empty<byte>() : Encoding.UTF8.GetBytes(options.Credential);
             _bufferPool = new PinnedMemoryPool(_mtu);
-
-            foreach (KnpServiceDescription service in options.Services)
-            {
-                if (service.ServiceType == KnpServiceType.Tcp)
-                {
-                    if (!service.ValidateTcpUdp(out errorMessage, out IPEndPoint? ipEndPoint))
-                    {
-                        throw new ArgumentException(errorMessage, nameof(options));
-                    }
-
-                    _services ??= new(StringComparer.Ordinal);
-                    var parameters = new KnpTcpKcpParameters(service.WindowSize, service.QueueSize, service.UpdateInterval, service.NoDelay);
-                    _services.Add(service.Name, new KnpTcpService(service.Name, ipEndPoint, parameters, _logger));
-                }
-                else if (service.ServiceType == KnpServiceType.Udp)
-                {
-                    if (!service.ValidateTcpUdp(out errorMessage, out IPEndPoint? ipEndPoint))
-                    {
-                        throw new ArgumentException(errorMessage, nameof(options));
-                    }
-
-                    _services ??= new(StringComparer.Ordinal);
-                    _services.Add(service.Name, new KnpUdpService(service.Name, ipEndPoint, _bufferPool, _logger));
-                }
-                else if (service.ServiceType == KnpServiceType.VirtualBus)
-                {
-                    if (!service.ValidateVirtualBus(out errorMessage))
-                    {
-                        throw new ArgumentException(errorMessage, nameof(options));
-                    }
-
-                    _virtualBuses ??= new(StringComparer.Ordinal);
-                    _virtualBuses.Add(service.Name, new KnpVirtualBusService(service.Name, service.Relay, _logger));
-                }
-                else
-                {
-                    throw new ArgumentException($"Listen endpoint is not a valid IP endpoint for service {service.Name}.", nameof(options));
-                }
-            }
-
-            if (_services is not null)
-            {
-                foreach (KeyValuePair<string, IKnpService> serviceKv in _services)
-                {
-                    serviceKv.Value.Start();
-                }
-            }
         }
 
         internal KnpServerAuthenticator CreateAuthenticator(int sessionId)

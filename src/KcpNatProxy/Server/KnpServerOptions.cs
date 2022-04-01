@@ -9,7 +9,7 @@ namespace KcpNatProxy.Server
         public string? Credential { get; set; }
         public KnpServiceDescription[]? Services { get; set; }
 
-        [MemberNotNullWhen(true, nameof(Listen), nameof(Services))]
+        [MemberNotNullWhen(true, nameof(Listen))]
         public bool Validate([NotNullWhen(false)] out string? errorMessage)
         {
             if (Listen is null)
@@ -22,12 +22,6 @@ namespace KcpNatProxy.Server
                 errorMessage = "Credential is too long.";
                 return false;
             }
-            if (Services is null || Services.Length == 0)
-            {
-                errorMessage = "No services is configured.";
-                return false;
-            }
-
             errorMessage = null;
             return true;
         }

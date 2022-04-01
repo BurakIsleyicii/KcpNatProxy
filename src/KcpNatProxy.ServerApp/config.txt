@@ -1,0 +1,19 @@
+{
+    "Listen": {
+        "EndPoint": "192.168.1.1:6677",
+        "Mtu": 1420
+    },
+    "Credential": "1234",
+    "Services": [
+        {
+            "Name": "rdp-tcp",
+            "ServiceType": "Tcp",
+            "Listen": "0.0.0.0:3389"
+        },
+        {
+            "Name": "rdp-udp",
+            "ServiceType": "Udp",
+            "Listen": "0.0.0.0:3389"
+        }
+    ]
+}
